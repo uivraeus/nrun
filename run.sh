@@ -31,4 +31,11 @@ while [[ "$1" == "-"* ]]; do
   shift
 done
 
-docker run ${OPTIONS[@]} --rm -it -v ${PWD}:${PWD} -w ${PWD} nrun "$@"
+# Build image if it doesn't exist yet
+REPO="nrun"
+IMAGE="$REPO:latest"
+if ! docker image ls -f reference="$IMAGE" | grep $REPO > /dev/null; then
+  echo "Image $IMAGE doesn't exist, building it now"
+  ./build.sh
+fi
+docker run ${OPTIONS[@]} --rm -it -v ${PWD}:${PWD} -w ${PWD} $IMAGE "$@"
